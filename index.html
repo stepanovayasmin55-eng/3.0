@@ -6,223 +6,214 @@
     <title>GrammaLab Kids</title>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <style>
-        :root { --p: #00a2ff; --bg: #f8faff; --ai: #6c5ce7; --s: #2ecc71; --r: #ff4757; --t: #2d3436; }
-        body { margin: 0; font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--t); touch-action: manipulation; user-select: none; }
+        :root { --p: #00a2ff; --bg: #f0f7ff; --ai: #6c5ce7; --s: #2ecc71; --r: #ff4757; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); overflow: hidden; touch-action: none; }
         
-        header { background: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
-        .logo { font-weight: 900; color: var(--p); font-size: 22px; letter-spacing: -1px; }
-        
-        .screen { display: none; padding: 20px; max-width: 500px; margin: 0 auto; animation: fadeIn 0.3s ease; }
-        .active { display: block; }
+        header { background: #fff; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .screen { display: none; padding: 15px; height: calc(100vh - 60px); box-sizing: border-box; overflow-y: auto; }
+        .active { display: block; animation: fadeIn 0.3s ease; }
 
-        .btn { padding: 18px; border-radius: 20px; border: none; font-weight: 800; cursor: pointer; width: 100%; margin: 8px 0; font-size: 16px; transition: 0.2s; box-shadow: 0 4px 0 rgba(0,0,0,0.1); }
+        .btn { padding: 14px; border-radius: 18px; border: none; font-weight: 800; cursor: pointer; width: 100%; margin: 5px 0; transition: 0.2s; box-shadow: 0 4px 0 rgba(0,0,0,0.1); font-size: 15px; }
         .btn-p { background: var(--p); color: #fff; }
         .btn-ai { background: var(--ai); color: #fff; }
-        .btn-s { background: var(--s); color: #fff; }
-        .btn:active { transform: translateY(2px); box-shadow: none; }
-        
-        /* ИГРОВОЕ ПОЛЕ */
-        #stage { height: 380px; position: relative; overflow: hidden; background: #fff; border-radius: 30px; border: 6px solid var(--p); margin-bottom: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        
-        /* РЕЖИМ: ВЫЛЕТАЮЩАЯ КАРТОЧКА */
-        .fly-card { background: #fff; border-radius: 25px; padding: 25px; box-shadow: 0 15px 40px rgba(0,0,0,0.15); transform: scale(0.7) translateY(200px); opacity: 0; transition: 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); text-align: center; height: 80%; display: flex; flex-direction: column; justify-content: center; }
-        .fly-card.show { transform: scale(1) translateY(0); opacity: 1; }
 
-        /* ДЖОЙСТИК ЛАБИРИНТА */
-        .joy { display: none; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 200px; margin: 15px auto; }
-        .j-btn { background: #fff; border: 2px solid #eee; padding: 20px; border-radius: 18px; font-size: 20px; cursor: pointer; box-shadow: 0 4px 0 #ddd; }
-        .j-btn:active { box-shadow: none; transform: translateY(2px); }
-
-        /* ЭЛЕМЕНТЫ ИГР */
-        .mole { width: 80px; height: 100px; background: #8d6e63; border-radius: 40px 40px 10px 10px; position: absolute; bottom: -110px; transition: 0.4s; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: bold; text-align: center; padding: 5px; box-sizing: border-box; }
-        .mole.up { bottom: 30px; }
+        /* ИГРОВАЯ АРЕНА */
+        #stage { height: 360px; position: relative; overflow: hidden; background: #fff; border-radius: 25px; border: 4px solid var(--p); margin-bottom: 10px; }
         
-        .gate { position: absolute; right: 15px; border: 3px solid var(--p); background: #fff; padding: 12px; border-radius: 15px; width: 100px; text-align: center; font-weight: 800; font-size: 13px; transition: 0.3s; }
+        /* 1. КАРТОЧКА (ВЫЛЕТ) */
+        .f-card { position: absolute; width: 80%; left: 10%; top: 15%; background: #fff; border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: scale(0) translateY(200px); opacity: 0; transition: 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); text-align: center; }
+        .f-card.active { transform: scale(1) translateY(0); opacity: 1; }
 
-        /* РЕДАКТОР */
-        .edit-item { background: #fff; padding: 20px; border-radius: 20px; margin-bottom: 15px; border: 1px solid #edf2f7; position: relative; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
-        .topic-badge { background: #f0f3ff; color: var(--ai); padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; margin-bottom: 8px; display: inline-block; }
-        .check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #ddd; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; }
-        .check-circle.active { background: var(--s); border-color: var(--s); color: #fff; }
+        /* 2. ЛАБИРИНТ (ДЖОЙСТИК) */
+        #hero { position: absolute; font-size: 35px; z-index: 10; transition: 0.1s linear; }
+        .gate { position: absolute; right: 10px; border: 3px solid var(--p); background: #fff; padding: 10px; border-radius: 12px; font-weight: bold; width: 90px; text-align: center; font-size: 11px; }
+        .joy { display: none; grid-template-columns: repeat(3, 1fr); gap: 5px; width: 140px; margin: 0 auto; }
+        .j-btn { background: #fff; border: 1px solid #ddd; padding: 12px; border-radius: 10px; font-weight: 900; }
 
-        #qr-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; color: #fff; backdrop-filter: blur(5px); }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* 3. КРОТ */
+        .mole { width: 75px; height: 90px; background: #8d6e63; border-radius: 35px 35px 5px 5px; position: absolute; bottom: -100px; transition: 0.4s; display: flex; align-items: center; justify-content: center; color: #fff; text-align: center; font-size: 10px; padding: 5px; box-sizing: border-box; }
+        .mole.up { bottom: 20px; }
+
+        /* 4. СОРТИРОВКА (ПАДЕНИЕ) */
+        .drop-item { position: absolute; top: -50px; background: var(--ai); color: #fff; padding: 10px 15px; border-radius: 12px; transition: 4s linear; font-weight: bold; cursor: pointer; }
+
+        /* 5. ПОЛЕТ */
+        .plane-item { position: absolute; right: -150px; background: #fff; border: 2px solid var(--p); padding: 10px; border-radius: 12px; transition: 5s linear; font-weight: bold; }
+
+        /* 6. ПАРЫ (МЕМОРИ) */
+        .pair-card { background: var(--p); border-radius: 10px; height: 60px; display: flex; align-items: center; justify-content: center; color: transparent; font-weight: bold; font-size: 10px; cursor: pointer; text-align: center; }
+        .pair-card.open { background: #fff; color: var(--p); border: 2px solid var(--p); }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="logo">GrammaLab Kids</div>
-    <div id="score-val" style="font-weight:900;">0 ⭐</div>
+    <div style="font-weight:900; color:var(--p); font-size:22px;">GrammaLab Kids</div>
+    <div id="score" style="font-weight:900;">0 ⭐</div>
 </header>
 
 <div id="sc-menu" class="screen active">
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-        <div class="btn" style="background:#fff" onclick="selectMode('card')">🎴 Карточка</div>
-        <div class="btn" style="background:#fff" onclick="selectMode('maze')">👾 Лабиринт</div>
-        <div class="btn" style="background:#fff" onclick="selectMode('quiz')">📝 Викторина</div>
-        <div class="btn" style="background:#fff" onclick="selectMode('mole')">🔨 Кроты</div>
-        <div class="btn" style="background:#fff" onclick="selectMode('plane')">✈️ Полет</div>
-        <div class="btn" style="background:#fff" onclick="selectMode('sort')">📦 Сортировка</div>
-        <div class="btn" style="background:#fff" onclick="selectMode('anagram')">🔠 Слова</div>
-        <div class="btn" style="background:#fff" onclick="selectMode('pairs')">👥 Пары</div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <button class="btn" style="background:#fff" onclick="goEdit('card')">🎴 Карточки</button>
+        <button class="btn" style="background:#fff" onclick="goEdit('maze')">👾 Лабиринт</button>
+        <button class="btn" style="background:#fff" onclick="goEdit('mole')">🔨 Кроты</button>
+        <button class="btn" style="background:#fff" onclick="goEdit('sort')">📦 Сортировка</button>
+        <button class="btn" style="background:#fff" onclick="goEdit('plane')">✈️ Полет</button>
+        <button class="btn" style="background:#fff" onclick="goEdit('pairs')">👥 Пары</button>
+        <button class="btn" style="background:#fff" onclick="goEdit('anagram')">🔠 Слова</button>
+        <button class="btn" style="background:#fff" onclick="goEdit('quiz')">📝 Викторина</button>
     </div>
-    <button class="btn btn-p" onclick="importGame()" style="margin-top:20px;">📥 Загрузить игру</button>
+    <button class="btn btn-p" onclick="importCode()" style="margin-top:20px;">📥 Загрузить по коду</button>
 </div>
 
 <div id="sc-edit" class="screen">
-    <button class="btn btn-ai" onclick="generateAI()">✨ ИИ: Добавить тему</button>
-    <div id="factory"></div>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-        <button class="btn" style="background:#fff" onclick="exportGame()">📤 Код / QR</button>
-        <button class="btn btn-p" onclick="startGame()">ИГРАТЬ ▶️</button>
-    </div>
-    <button class="btn" style="background:none; box-shadow:none; color:#a0aec0;" onclick="location.reload()">← Назад в меню</button>
+    <button class="btn btn-ai" onclick="aiAsk()">✨ ИИ: Выбрать тему (1-13)</button>
+    <div id="factory" style="margin-top:10px;"></div>
+    <button class="btn btn-p" onclick="play()">ИГРАТЬ ▶️</button>
+    <button class="btn" style="background:#fff" onclick="makeQR()">📤 Создать QR-код</button>
 </div>
 
 <div id="sc-game" class="screen">
-    <div id="current-topic" style="text-align:center; font-weight:800; color:var(--ai); margin-bottom:10px; font-size:14px;"></div>
+    <div id="t-info" style="text-align:center; font-weight:800; color:var(--ai); margin-bottom:5px; font-size:14px;"></div>
     <div id="stage"></div>
-    <div class="joy" id="joy-ctrl">
-        <button></button><button class="j-btn" onclick="move(0,-25)">▲</button><button></button>
-        <button class="j-btn" onclick="move(-25,0)">◄</button><button></button><button class="j-btn" onclick="move(25,0)">►</button>
-        <button></button><button class="j-btn" onclick="move(0,25)">▼</button><button></button>
+    <div class="joy" id="joy">
+        <button></button><button class="j-btn" onclick="moveH(0,-30)">▲</button><button></button>
+        <button class="j-btn" onclick="moveH(-30,0)">◄</button><button></button><button class="j-btn" onclick="moveH(30,0)">►</button>
+        <button></button><button class="j-btn" onclick="moveH(0,30)">▼</button><button></button>
     </div>
-    <div id="game-options" style="display: grid; grid-template-columns: 1fr; gap: 10px;"></div>
+    <div id="opts" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;"></div>
 </div>
 
-<div id="qr-modal">
-    <div id="qrcode" style="background:#fff; padding:20px; border-radius:25px;"></div>
-    <p style="margin:20px; font-weight:700;">Сканируй камерой!</p>
-    <textarea id="code-out" readonly style="width:70%; height:40px; border-radius:10px; padding:10px; font-size:10px;"></textarea>
-    <button class="btn btn-p" style="width:200px; margin-top:20px;" onclick="document.getElementById('qr-modal').style.display='none'">Понятно</button>
+<div id="qr-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:100; flex-direction:column; align-items:center; justify-content:center; color:#fff;">
+    <div id="qrcode" style="background:#fff; padding:15px; border-radius:15px;"></div>
+    <p>Код скопирован!</p>
+    <button class="btn btn-p" style="width:180px;" onclick="document.getElementById('qr-modal').style.display='none'">Закрыть</button>
 </div>
 
 <script>
-    let mode = '', questions = [], currentIdx = 0, score = 0, aiCounter = 0;
-    let heroPos = {x: 30, y: 150};
-    const topics = ["1. Существительное", "2. Обращение", "3. Типы речи", "4. Лексика", "5. Однородные члены", "6. Обобщающие слова", "7. Прямая речь", "8. Подлежащее", "9. Сказуемое", "10. Второстепенные члены", "11. Тире между П и С", "12. Местоимения", "13. Глагол"];
+    let mode = '', qs = [], cur = 0, score = 0;
+    let hPos = {x:20, y:150};
+    const topics = {
+        1: "Имя существительное (Род, падеж...)",
+        2: "Обращение (Знаки препинания)",
+        3: "Типы речи (Повествование...)",
+        4: "Лексика (Синонимы, Антонимы...)",
+        5: "Однородные члены",
+        13: "Глагол (Спряжения)"
+    };
 
-    function selectMode(m) { mode = m; show('sc-edit'); generateAI(); }
+    function goEdit(m) { mode = m; show('sc-edit'); }
     function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
 
-    function generateAI() {
-        const theme = topics[aiCounter % 13];
-        const div = document.createElement('div'); div.className = 'edit-item';
-        div.innerHTML = `
-            <div class="topic-badge">${theme}</div>
-            <input type="text" value="Вопрос про ${theme}..." class="q-in" style="width:100%; border:none; font-weight:800; font-size:16px; outline:none; margin-bottom:10px;">
-            ${[0,1,2].map(i => `
-                <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
-                    <div class="check-circle ${i===0?'active':''}" onclick="setCorrect(this, ${i})">${i===0?'✓':''}</div>
-                    <input type="text" value="Ответ ${i+1}" class="a-in" style="flex:1; border:1px solid #eee; padding:8px; border-radius:10px;">
-                </div>
-            `).join('')}
-            <button onclick="this.parentElement.remove()" style="position:absolute; top:15px; right:15px; border:none; background:none; color:#cbd5e0; font-size:18px;">✕</button>
-        `;
-        div.dataset.correct = 0; div.dataset.topic = theme;
-        document.getElementById('factory').appendChild(div);
-        aiCounter++;
+    function aiAsk() {
+        let n = prompt("Выбери номер темы (1-13):");
+        const t = topics[n] || "Общая тема";
+        const div = document.createElement('div'); div.className = 'btn'; div.style = "background:#fff; text-align:left; cursor:default;";
+        div.innerHTML = `<b>${t}</b><br><input type="text" placeholder="Вопрос" class="qi" style="width:100%; border:none; border-bottom:1px solid #ddd; margin:5px 0;">
+        ${[0,1,2].map(i => `<div style="display:flex; gap:5px;"><input type="text" placeholder="Ответ ${i+1}" class="ai" style="flex:1;"><input type="radio" name="r${Date.now()}" class="ci" ${i===0?'checked':''}></div>`).join('')}`;
+        div.dataset.t = t; document.getElementById('factory').appendChild(div);
     }
 
-    function setCorrect(el, idx) {
-        el.parentElement.parentElement.querySelectorAll('.check-circle').forEach(c => { c.classList.remove('active'); c.innerText = ''; });
-        el.classList.add('active'); el.innerText = '✓';
-        el.parentElement.parentElement.dataset.correct = idx;
-    }
-
-    function startGame() {
-        questions = [];
-        document.querySelectorAll('.edit-item').forEach(ei => {
-            const opts = []; ei.querySelectorAll('.a-in').forEach((input, i) => {
-                opts.push({ text: input.value, isCorrect: i == ei.dataset.correct });
-            });
-            questions.push({ q: ei.querySelector('.q-in').value, opts, topic: ei.dataset.topic });
+    function play() {
+        qs = [];
+        document.querySelectorAll('#factory > div').forEach(d => {
+            let opts = []; d.querySelectorAll('.ai').forEach((a, i) => opts.push({t: a.value, ok: d.querySelectorAll('.ci')[i].checked}));
+            qs.push({t: d.dataset.t, q: d.querySelector('.qi').value, opts});
         });
-        if(questions.length) { currentIdx = 0; score = 0; show('sc-game'); renderGame(); }
+        if(qs.length) { cur = 0; score = 0; show('sc-game'); render(); }
     }
 
-    function renderGame() {
-        const item = questions[currentIdx]; const stage = document.getElementById('stage'); const opts = document.getElementById('game-options');
-        stage.innerHTML = ""; opts.innerHTML = ""; document.getElementById('joy-ctrl').style.display = "none";
-        document.getElementById('current-topic').innerText = item.topic;
-        document.getElementById('score-val').innerText = score + " ⭐";
+    function render() {
+        const it = qs[cur]; const st = document.getElementById('stage'); const op = document.getElementById('opts');
+        st.innerHTML = ""; op.innerHTML = ""; document.getElementById('joy').style.display = "none";
+        document.getElementById('t-info').innerText = it.t;
+        document.getElementById('score').innerText = score + " ⭐";
 
         if(mode === 'card') {
-            stage.innerHTML = `<div class="fly-card" id="active-card"><h2>${item.q}</h2><div id="card-btns"></div></div>`;
-            setTimeout(() => document.getElementById('active-card').classList.add('show'), 50);
-            item.opts.forEach(o => {
-                const b = document.createElement('button'); b.className = "btn btn-p"; b.innerText = o.text;
-                b.onclick = () => checkResult(o.isCorrect, b); document.getElementById('card-btns').appendChild(b);
+            st.innerHTML = `<div class="f-card" id="fc"><h3>${it.q}</h3><div id="fc-btns"></div></div>`;
+            setTimeout(()=>document.getElementById('fc').classList.add('active'), 50);
+            it.opts.forEach(o => {
+                const b = document.createElement('button'); b.className = "btn btn-p"; b.innerText = o.t;
+                b.onclick = () => check(o.ok, b); document.getElementById('fc-btns').appendChild(b);
             });
-        } 
-        else if(mode === 'maze') {
-            document.getElementById('joy-ctrl').style.display = "grid";
-            stage.innerHTML = `<div id="hero" style="left:30px; top:150px;">👾</div>`;
-            heroPos = {x: 30, y: 150};
-            item.opts.forEach((o, i) => {
-                const g = document.createElement('div'); g.className = "gate"; g.style.top = (40 + i*105) + "px";
-                g.innerText = o.text; g.id = "gate"+i; stage.appendChild(g);
+        } else if(mode === 'maze') {
+            document.getElementById('joy').style.display = "grid";
+            st.innerHTML = `<div id="hero">👾</div>`; hPos = {x:20, y:150};
+            it.opts.forEach((o, i) => {
+                const g = document.createElement('div'); g.className = "gate"; g.style.top = (30 + i*100) + "px";
+                g.innerText = o.t; g.id = "g"+i; st.appendChild(g);
             });
-        }
-        else if(mode === 'mole') {
-            item.opts.forEach((o, i) => {
-                const m = document.createElement('div'); m.className = 'mole'; m.innerText = o.text;
-                m.style.left = (12+i*33) + '%'; m.onclick = () => checkResult(o.isCorrect, m);
-                stage.appendChild(m); setTimeout(() => m.classList.add('up'), 200+i*200);
+        } else if(mode === 'mole') {
+            it.opts.forEach((o, i) => {
+                const m = document.createElement('div'); m.className = "mole"; m.innerText = o.t;
+                m.style.left = (12+i*33) + "%"; m.onclick = () => check(o.ok, m);
+                st.appendChild(m); setTimeout(()=>m.classList.add('up'), 300+i*300);
             });
-        }
-        else {
-            stage.innerHTML = `<div style="padding:40px; text-align:center;"><h2>${item.q}</h2></div>`;
-            item.opts.forEach(o => {
+        } else if(mode === 'sort') {
+            it.opts.forEach((o, i) => {
+                const d = document.createElement('div'); d.className = "drop-item"; d.innerText = o.t;
+                d.style.left = (15+i*30) + "%"; st.appendChild(d);
+                setTimeout(()=> d.style.top = "310px", 100);
+                d.onclick = () => check(o.ok, d);
+            });
+        } else if(mode === 'plane') {
+            it.opts.forEach((o, i) => {
+                const p = document.createElement('div'); p.className = "plane-item"; p.innerText = o.t;
+                p.style.top = (40 + i*90) + "px"; st.appendChild(p);
+                setTimeout(()=> p.style.right = "400px", 100);
+                p.onclick = () => check(o.ok, p);
+            });
+        } else if(mode === 'pairs') {
+            st.style.display = "grid"; st.style.gridTemplateColumns = "1fr 1fr 1fr"; st.style.gap = "10px"; st.style.padding = "20px";
+            [...it.opts, ...it.opts].sort(()=>Math.random()-0.5).forEach(o => {
+                const c = document.createElement('div'); c.className = "pair-card"; c.innerText = o.t;
+                c.onclick = () => { c.classList.add('open'); if(o.ok) setTimeout(()=>check(true, c), 500); };
+                st.appendChild(c);
+            });
+        } else {
+            st.innerHTML = `<h2 style="text-align:center; padding-top:100px;">${it.q}</h2>`;
+            it.opts.forEach(o => {
                 const b = document.createElement('button'); b.className = "btn btn-p"; 
-                b.innerText = (mode === 'anagram' && o.isCorrect) ? o.text.split('').sort(()=>Math.random()-0.5).join('') : o.text;
-                b.onclick = () => checkResult(o.isCorrect, b); opts.appendChild(b);
+                b.innerText = mode === 'anagram' && o.ok ? o.t.split('').sort(()=>Math.random()-0.5).join('') : o.t;
+                b.onclick = () => check(o.ok, b); op.appendChild(b);
             });
         }
     }
 
-    function move(dx, dy) {
-        heroPos.x += dx; heroPos.y += dy;
-        const h = document.getElementById('hero'); h.style.left = heroPos.x + 'px'; h.style.top = heroPos.y + 'px';
-        questions[currentIdx].opts.forEach((o, i) => {
-            if(heroPos.x > 330 && Math.abs(heroPos.y - (40+i*105)) < 40) {
-                checkResult(o.isCorrect, document.getElementById('gate'+i));
-                heroPos = {x: 30, y: 150};
-            }
+    function moveH(dx, dy) {
+        hPos.x += dx; hPos.y += dy; const h = document.getElementById('hero');
+        h.style.left = hPos.x + 'px'; h.style.top = hPos.y + 'px';
+        qs[cur].opts.forEach((o, i) => {
+            const g = document.getElementById('g'+i);
+            if(hPos.x > 310 && Math.abs(hPos.y - (30+i*100)) < 40) check(o.ok, g);
         });
     }
 
-    function checkResult(correct, el) {
-        if(correct) { score += 10; el.style.background = "var(--s)"; el.style.color = "#fff"; }
-        else { el.style.background = "var(--r)"; el.style.color = "#fff"; }
-        setTimeout(() => {
-            currentIdx++;
-            if(currentIdx < questions.length) renderGame();
-            else finish();
-        }, 700);
+    function check(ok, el) {
+        if(ok) { score += 10; el.style.background = "var(--s)"; } else { el.style.background = "var(--r)"; }
+        setTimeout(() => { cur++; if(cur < qs.length) render(); else finish(); }, 700);
     }
 
     function finish() {
-        document.getElementById('stage').innerHTML = `<div style="text-align:center; padding:60px;"><h1>🏆 КОНЕЦ!</h1><p>Твой результат: <b>${score} ⭐</b></p><button class="btn btn-p" onclick="location.reload()">В МЕНЮ</button></div>`;
-        document.getElementById('game-options').innerHTML = "";
+        document.getElementById('stage').style.display = "block";
+        document.getElementById('stage').innerHTML = `<div style="text-align:center; padding-top:100px;"><h1>Ура! 🎉</h1><p>Счет: ${score}</p><button class="btn btn-p" style="width:200px" onclick="location.reload()">В меню</button></div>`;
     }
 
-    function exportGame() {
-        const data = btoa(unescape(encodeURIComponent(JSON.stringify({m: mode, q: questions}))));
-        document.getElementById('code-out').value = data;
+    function makeQR() {
+        const code = btoa(unescape(encodeURIComponent(JSON.stringify({m: mode, q: qs}))));
         document.getElementById('qrcode').innerHTML = "";
-        new QRCode(document.getElementById("qrcode"), { text: data, width: 220, height: 220, correctLevel: QRCode.CorrectLevel.H });
+        new QRCode(document.getElementById("qrcode"), { text: code, width: 200, height: 200 });
         document.getElementById('qr-modal').style.display = 'flex';
-        navigator.clipboard.writeText(data);
+        navigator.clipboard.writeText(code);
     }
 
-    function importGame() {
-        const code = prompt("Вставь код игры:");
-        if(code) {
-            const dec = JSON.parse(decodeURIComponent(escape(atob(code))));
-            mode = dec.m; questions = dec.q; startGame();
+    function importCode() {
+        const c = prompt("Вставь код:");
+        if(c) {
+            const d = JSON.parse(decodeURIComponent(escape(atob(c))));
+            mode = d.m; qs = d.q; play();
         }
     }
 </script>
