@@ -68,7 +68,7 @@
         .nav-bar {
             position: fixed; bottom: 0; left: 0; right: 0; height: 60px;
             background: var(--panel-dark); border-top: 1px solid #2a3454;
-            display: flex; justify-content: space-around; align-items: center; z-index: 1000;
+            display: flex; justify-around: space-around; align-items: center; z-index: 1000;
         }
         .nav-item { color: var(--text-muted); cursor: pointer; font-size: 12px; text-align: center; font-weight: 600; }
         .nav-item.active-nav { color: var(--primary); }
@@ -266,7 +266,7 @@
         else switchTab('auth');
     };
 
-    // ФУНКЦИЯ ГЕНЕРАЦИИ ЧЕРЕЗ CORS-ПРОКСИ (БЕЗ VPN)
+    // ФУНКЦИЯ ГЕНЕРАЦИИ ЧЕРЕЗ CORS-ПРОКСИ (БЕЗ VPN, ИСПОЛЬЗУЕТ GEMINI-2.5-FLASH)
     async function generateQuestWithGemini() {
         const topic = document.getElementById('setup-title').value.trim();
         const apiKey = document.getElementById('gemini-api-key').value.trim();
@@ -286,7 +286,7 @@
 Структура ответа:
 {"title": "${topic}", "questions": [{"q": "Текст вопроса", "a": "Правильный ответ", "n": "Неправильный ответ"}]}`;
 
-        const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
         const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
 
         try {
