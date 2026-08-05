@@ -285,12 +285,10 @@
 Структура ответа:
 {"title": "${topic}", "questions": [{"q": "Текст вопроса", "a": "Правильный ответ", "n": "Неправильный ответ"}]}`;
 
-        // Перебираем варианты моделей и эндпоинтов для высокой надежности
+        // Актуальные эндпоинты API
         const candidateUrls = [
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-            `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`
         ];
 
         let lastErrorMessage = "";
@@ -322,7 +320,7 @@
             btn.disabled = false;
             btn.innerText = "✨ Сгенерировать квест через ИИ";
             countText.innerText = "Ошибка генерации";
-            return alert(`Ошибка API: ${lastErrorMessage}\nПроверьте, включен ли доступ к Gemini в AI Studio для вашего ключа.`);
+            return alert(`Ошибка API: ${lastErrorMessage}\nУбедитесь, что API-ключ создан в Google AI Studio.`);
         }
 
         try {
