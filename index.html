@@ -285,7 +285,8 @@
 Структура ответа:
 {"title": "${topic}", "questions": [{"q": "Текст вопроса", "a": "Правильный ответ", "n": "Неправильный ответ"}]}`;
 
-        const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+        // Используем универсальное имя модели gemini-flash
+        const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash:generateContent?key=${apiKey}`;
         const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
 
         try {
