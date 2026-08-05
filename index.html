@@ -284,7 +284,6 @@
 Формат:
 {"questions": [{"q": "Вопрос?", "a": "Верно", "n": "Неверно"}]}`;
 
-        // Функция повтора запроса с паузой при превышении лимита 429
         async function fetchWithRetry(url, options, retries = 2, delay = 10000) {
             for (let i = 0; i < retries; i++) {
                 const res = await fetch(url, options);
@@ -297,7 +296,8 @@
             }
         }
 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        // Используется актуальная модель gemini-2.5-flash
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
         try {
             const res = await fetchWithRetry(url, {
