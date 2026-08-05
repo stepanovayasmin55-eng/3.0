@@ -137,7 +137,7 @@
     <div id="scr-create" class="screen">
         <div class="ai-box">
             <strong style="color: var(--primary);">🤖 Генератор квестов на Gemini AI:</strong><br>
-            <span style="font-size: 12px; color: var(--text-muted);">Введите ваш API-ключ от Google AI Studio для прямой генерации без перехода на другие сайты. Ключ сохраняется локально.</span>
+            <span style="font-size: 12px; color: var(--text-muted);">Введите ваш API-ключ от Google AI Studio для прямой генерации без использования VPN. Ключ сохраняется локально.</span>
             
             <input type="password" id="gemini-api-key" placeholder="Вставьте Gemini API Key..." style="margin-top: 8px;">
             <button class="btn btn-sec" id="btn-ai-gen" onclick="generateQuestWithGemini()">✨ Сгенерировать квест через ИИ</button>
@@ -259,7 +259,6 @@
     window.onload = function() {
         document.getElementById('search-task').addEventListener('input', renderFeed);
         
-        // Загрузка сохранённого API ключа
         const savedKey = localStorage.getItem('gq_gemini_key');
         if (savedKey) document.getElementById('gemini-api-key').value = savedKey;
 
@@ -267,7 +266,7 @@
         else switchTab('auth');
     };
 
-    // ФУНКЦИЯ ПРЯМОЙ ГЕНЕРАЦИИ ЧЕРЕЗ GEMINI API
+    // ФУНКЦИЯ ГЕНЕРАЦИИ ЧЕРЕЗ CORS-ПРОКСИ (БЕЗ VPN)
     async function generateQuestWithGemini() {
         const topic = document.getElementById('setup-title').value.trim();
         const apiKey = document.getElementById('gemini-api-key').value.trim();
@@ -283,14 +282,15 @@
         btn.innerText = "⏳ ИИ придумывает вопросы...";
         countText.innerText = "Генерация ответа...";
 
-        const promptText = `Придумай 8 учебных вопросов-заданий на тему "${topic}". Твой ответ должен быть СТРОГО в формате JSON без разметки markdown (без \`\`\`json). 
+        const promptText = `Придумай 8 учебных вопросов-заданий на тему "${topic}". Твой ответ должен быть СТРОГО в формате JSON без какой-либо разметки markdown (без \`\`\`json). 
 Структура ответа:
 {"title": "${topic}", "questions": [{"q": "Текст вопроса", "a": "Правильный ответ", "n": "Неправильный ответ"}]}`;
 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
 
         try {
-            const response = await fetch(url, {
+            const response = await fetch(proxyUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -298,7 +298,10 @@
                 })
             });
 
-            if (!response.ok) throw new Error(`Ошибка сети: ${response.status}`);
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({}));
+                throw new Error(errData.error?.message || `Ошибка сервера (${response.status})`);
+            }
 
             const data = await response.json();
             let rawText = data.candidates[0].content.parts[0].text.trim();
@@ -323,7 +326,7 @@
 
         } catch (err) {
             console.error(err);
-            alert("Не удалось сгенерировать квест. Проверьте правильность API-ключа или повторите попытку.");
+            alert(`Ошибка генерации: ${err.message}`);
             countText.innerText = "Ошибка генерации";
         } finally {
             btn.disabled = false;
@@ -681,4 +684,4 @@
     }
 </script>
 </body>
-    </html>
+</html>
