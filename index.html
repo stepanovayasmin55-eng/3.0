@@ -68,7 +68,7 @@
         .nav-bar {
             position: fixed; bottom: 0; left: 0; right: 0; height: 60px;
             background: var(--panel-dark); border-top: 1px solid #2a3454;
-            display: flex; justify-content: space-around; align-items: center; z-index: 1000;
+            display: flex; justify-around: space-around; align-items: center; z-index: 1000;
         }
         .nav-item { color: var(--text-muted); cursor: pointer; font-size: 12px; text-align: center; font-weight: 600; flex: 1; }
         .nav-item.active-nav { color: var(--primary); }
@@ -285,25 +285,48 @@
 Структура ответа:
 {"title": "${topic}", "questions": [{"q": "Текст вопроса", "a": "Правильный ответ", "n": "Неправильный ответ"}]}`;
 
-        // Используем точное имя модели gemini-1.5-flash
-        const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        // Перебираем варианты моделей и эндпоинтов для высокой надежности
+        const candidateUrls = [
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+            `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`
+        ];
+
+        let lastErrorMessage = "";
+        let responseData = null;
+
+        for (const url of candidateUrls) {
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: promptText }] }]
+                    })
+                });
+
+                if (res.ok) {
+                    responseData = await res.json();
+                    break;
+                } else {
+                    const errJson = await res.json().catch(() => ({}));
+                    lastErrorMessage = errJson.error?.message || `Ошибка HTTP ${res.status}`;
+                }
+            } catch (e) {
+                lastErrorMessage = e.message;
+            }
+        }
+
+        if (!responseData) {
+            btn.disabled = false;
+            btn.innerText = "✨ Сгенерировать квест через ИИ";
+            countText.innerText = "Ошибка генерации";
+            return alert(`Ошибка API: ${lastErrorMessage}\nПроверьте, включен ли доступ к Gemini в AI Studio для вашего ключа.`);
+        }
 
         try {
-            const response = await fetch(targetUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: promptText }] }]
-                })
-            });
-
-            if (!response.ok) {
-                const errData = await response.json().catch(() => ({}));
-                throw new Error(errData.error?.message || `Ошибка сервера (${response.status})`);
-            }
-
-            const data = await response.json();
-            let rawText = data.candidates[0].content.parts[0].text.trim();
+            let rawText = responseData.candidates[0].content.parts[0].text.trim();
 
             if (rawText.startsWith("```json")) rawText = rawText.substring(7);
             if (rawText.startsWith("```")) rawText = rawText.substring(3);
@@ -325,8 +348,8 @@
 
         } catch (err) {
             console.error(err);
-            alert(`Ошибка генерации: ${err.message}`);
-            countText.innerText = "Ошибка генерации";
+            alert(`Ошибка обработчика JSON: ${err.message}`);
+            countText.innerText = "Ошибка обработки";
         } finally {
             btn.disabled = false;
             btn.innerText = "✨ Сгенерировать квест через ИИ";
