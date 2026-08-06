@@ -687,5 +687,22 @@
         renderCommentsList(game); renderFeed();
     }
 </script>
+    async function askAI(userPrompt) {
+  try {
+    const response = await fetch('https://grammalab-server-chi.vercel.app/api/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ prompt: userPrompt }),
+    });
+
+    const data = await response.json();
+    return data.text;
+  } catch (error) {
+    console.error('Ошибка:', error);
+  }
+}
+
 </body>
 </html>
