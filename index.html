@@ -137,10 +137,9 @@
     <div id="scr-create" class="screen">
         <div class="ai-box">
             <strong style="color: var(--primary);">🤖 Генератор квестов на Gemini AI:</strong><br>
-            <span style="font-size: 12px; color: var(--text-muted);">Введите ваш API-ключ от Google AI Studio для прямой генерации.</span>
+            <span style="font-size: 12px; color: var(--text-muted);">Автоматическая генерация вопросов через ваш сервер Vercel.</span>
             
-            <input type="password" id="gemini-api-key" placeholder="Вставьте Gemini API Key..." style="margin-top: 8px;">
-            <button class="btn btn-sec" id="btn-ai-gen" onclick="generateQuestWithGemini()">✨ Сгенерировать квест через ИИ</button>
+            <button class="btn btn-sec" id="btn-ai-gen" style="margin-top: 12px;" onclick="generateQuestWithGemini()">✨ Сгенерировать квест через ИИ</button>
         </div>
 
         <div class="card">
@@ -258,64 +257,39 @@
 
     window.onload = function() {
         document.getElementById('search-task').addEventListener('input', renderFeed);
-        
-        const savedKey = localStorage.getItem('gq_gemini_key');
-        if (savedKey) document.getElementById('gemini-api-key').value = savedKey;
 
         if (currentUser) loginSetup();
         else switchTab('auth');
     };
 
+    // Интеграция с Vercel Server & Gemini API
+    async function askAI(userPrompt) {
+        const response = await fetch('https://grammalab-server-chi.vercel.app/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt: userPrompt })
+        });
+        const data = await response.json();
+        return data.text;
+    }
+
     async function generateQuestWithGemini() {
         const topic = document.getElementById('setup-title').value.trim();
-        const apiKey = document.getElementById('gemini-api-key').value.trim();
 
-        if (!topic || !apiKey) return alert("Пожалуйста, введите тему и API Key!");
-
-        localStorage.setItem('gq_gemini_key', apiKey);
+        if (!topic) return alert("Пожалуйста, введите тему квеста!");
 
         const btn = document.getElementById('btn-ai-gen');
         const countText = document.getElementById('ready-q-count');
         btn.disabled = true;
         btn.innerText = "⏳ ИИ создает задания...";
 
-        const promptText = `Придумай 5 коротких учебных вопросов на тему "${topic}". 
-Ответ верни СТРОГО в формате JSON без разметки markdown.
-Формат:
-{"questions": [{"q": "Вопрос?", "a": "Верно", "n": "Неверно"}]}`;
-
-        async function fetchWithRetry(url, options, retries = 2, delay = 10000) {
-            for (let i = 0; i < retries; i++) {
-                const res = await fetch(url, options);
-                if (res.status === 429 && i < retries - 1) {
-                    btn.innerText = `⏳ Лимит превышен, повтор через ${delay / 1000} сек...`;
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                    continue;
-                }
-                return res;
-            }
-        }
-
-        // Рабочая актуальная модель API
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        const promptText = `Придумай 5 коротких учебных вопросов на тему "${topic}". Ответ верни СТРОГО в формате JSON без разметки markdown и без лишнего текста: {"questions": [{"q": "Вопрос?", "a": "Верный ответ", "n": "Неверный ответ"}]}`;
 
         try {
-            const res = await fetchWithRetry(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
-            });
+            const rawText = await askAI(promptText);
+            const cleanText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
 
-            if (!res.ok) {
-                const errData = await res.json().catch(() => ({}));
-                throw new Error(errData.error?.message || "Не удалось получить ответ от ИИ");
-            }
-
-            const data = await res.json();
-            let rawText = data.candidates[0].content.parts[0].text;
-            rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
-
-            const parsed = JSON.parse(rawText);
+            const parsed = JSON.parse(cleanText);
 
             buildQuestions = parsed.questions.map(item => ({
                 q: item.q,
@@ -330,7 +304,8 @@
             alert("Задания успешно сгенерированы!");
 
         } catch (err) {
-            alert("Ошибка: " + err.message);
+            console.error(err);
+            alert("Ошибка генерации. Попробуйте еще раз.");
             countText.innerText = "Попробуйте позже";
         } finally {
             btn.disabled = false;
@@ -687,22 +662,5 @@
         renderCommentsList(game); renderFeed();
     }
 </script>
-    async function askAI(userPrompt) {
-  try {
-    const response = await fetch('https://grammalab-server-chi.vercel.app/api/generate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ prompt: userPrompt }),
-    });
-
-    const data = await response.json();
-    return data.text;
-  } catch (error) {
-    console.error('Ошибка:', error);
-  }
-}
-
 </body>
 </html>
