@@ -68,7 +68,7 @@
         .nav-bar {
             position: fixed; bottom: 0; left: 0; right: 0; height: 60px;
             background: var(--panel-dark); border-top: 1px solid #2a3454;
-            display: flex; justify-content: space-around; align-items: center; z-index: 1000;
+            display: flex; justify-around: space-around; align-items: center; z-index: 1000;
         }
         .nav-item { color: var(--text-muted); cursor: pointer; font-size: 12px; text-align: center; font-weight: 600; flex: 1; }
         .nav-item.active-nav { color: var(--primary); }
@@ -262,14 +262,18 @@
         else switchTab('auth');
     };
 
-    // Интеграция с Vercel Server & Gemini API
+    // Запрос к Vercel с обработкой ошибок
     async function askAI(userPrompt) {
         const response = await fetch('https://grammalab-server-chi.vercel.app/api/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ prompt: userPrompt })
         });
+        
         const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || data.message || `Ошибка сервера: ${response.status}`);
+        }
         return data.text;
     }
 
@@ -287,8 +291,9 @@
 
         try {
             const rawText = await askAI(promptText);
-            const cleanText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+            if (!rawText) throw new Error("Сервер вернул пустой ответ");
 
+            const cleanText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
             const parsed = JSON.parse(cleanText);
 
             buildQuestions = parsed.questions.map(item => ({
@@ -305,8 +310,8 @@
 
         } catch (err) {
             console.error(err);
-            alert("Ошибка генерации. Попробуйте еще раз.");
-            countText.innerText = "Попробуйте позже";
+            alert("Детали ошибки: " + err.message);
+            countText.innerText = "Ошибка генерации";
         } finally {
             btn.disabled = false;
             btn.innerText = "✨ Сгенерировать квест через ИИ";
