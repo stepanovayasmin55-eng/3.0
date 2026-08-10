@@ -68,7 +68,7 @@
         .nav-bar {
             position: fixed; bottom: 0; left: 0; right: 0; height: 60px;
             background: var(--panel-dark); border-top: 1px solid #2a3454;
-            display: flex; justify-around: space-around; align-items: center; z-index: 1000;
+            display: flex; justify-content: space-around; align-items: center; z-index: 1000;
         }
         .nav-item { color: var(--text-muted); cursor: pointer; font-size: 12px; text-align: center; font-weight: 600; flex: 1; }
         .nav-item.active-nav { color: var(--primary); }
@@ -175,7 +175,7 @@
         </div>
     </div>
 
-    <!-- ЭКРАН ПРОФИЛЯ -->
+    <!-- ЭКРАН ПРОФИЛЬ -->
     <div id="scr-profile" class="screen">
         <div class="card" style="display:flex; gap:15px; align-items:center;">
             <div class="avatar" style="width:65px; height:65px; font-size:24px;" id="prof-avatar">?</div>
@@ -238,10 +238,7 @@
 </div>
 
 <script>
-    if (!localStorage.getItem('gq_clean_start_v3')) {
-        localStorage.removeItem('gq_games');
-        localStorage.setItem('gq_clean_start_v3', 'true');
-    }
+    const VERCEL_URL = 'https://grammalab-server-kt7a.vercel.app/api/generate';
 
     let currentUser = JSON.parse(localStorage.getItem('gq_user')) || null;
     let games = JSON.parse(localStorage.getItem('gq_games')) || [];
@@ -256,30 +253,15 @@
     const MODES_NAMES = { mole: "🔨 Кроты", plane: "✈️ Самолет", words: "🔠 Мастер Слов", tf: "⚖️ Правда/Ложь", sort: "↔️ Сортировщик", quiz: "🎓 Экзамен" };
 
     window.onload = function() {
-        document.getElementById('search-task').addEventListener('input', renderFeed);
+        const searchInput = document.getElementById('search-task');
+        if (searchInput) searchInput.addEventListener('input', renderFeed);
 
         if (currentUser) loginSetup();
         else switchTab('auth');
     };
 
-    // Запрос к Vercel с обработкой ошибок
-    async function askAI(userPrompt) {
-        const response = await fetch('https://grammalab-server-chi.vercel.app/api/generate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt: userPrompt })
-        });
-        
-        const data = await response.json();
-        if (!response.ok) {
-            throw new Error(data.error || data.message || `Ошибка сервера: ${response.status}`);
-        }
-        return data.text;
-    }
-
     async function generateQuestWithGemini() {
         const topic = document.getElementById('setup-title').value.trim();
-
         if (!topic) return alert("Пожалуйста, введите тему квеста!");
 
         const btn = document.getElementById('btn-ai-gen');
@@ -290,9 +272,16 @@
         const promptText = `Придумай 5 коротких учебных вопросов на тему "${topic}". Ответ верни СТРОГО в формате JSON без разметки markdown и без лишнего текста: {"questions": [{"q": "Вопрос?", "a": "Верный ответ", "n": "Неверный ответ"}]}`;
 
         try {
-            const rawText = await askAI(promptText);
-            if (!rawText) throw new Error("Сервер вернул пустой ответ");
+            const response = await fetch(VERCEL_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: promptText })
+            });
 
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || `Ошибка сервера: ${response.status}`);
+
+            const rawText = data.result || "";
             const cleanText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
             const parsed = JSON.parse(cleanText);
 
@@ -449,7 +438,7 @@
 
     function renderFeed() {
         const list = document.getElementById('feed-list');
-        const query = document.getElementById('search-task').value.toLowerCase();
+        const query = (document.getElementById('search-task')?.value || '').toLowerCase();
         list.innerHTML = '';
         
         if(games.length === 0) {
@@ -464,7 +453,7 @@
                 card.innerHTML = `
                     <div class="game-item-header">
                         <div>
-                            <span class="badge-tag">${MODES_NAMES[g.mode]}</span>
+                            <span class="badge-tag">${MODES_NAMES[g.mode] || "Игра"}</span>
                             <h3 style="margin: 8px 0 4px 0;">${g.title}</h3>
                             <div style="font-size:12px; color:var(--text-muted)">Автор: <b>${g.creator}</b> (${g.class})</div>
                         </div>
@@ -472,8 +461,8 @@
                     </div>
                     <button class="btn" style="margin-top:15px;" onclick="initiatePlay('${g.id}')">Играть ▶️</button>
                     <div class="reactions">
-                        <div class="reaction-btn" onclick="handleReaction('${g.id}', 'like')">👍 <span>${g.likes}</span></div>
-                        <div class="reaction-btn" onclick="handleReaction('${g.id}', 'dislike')">👎 <span>${g.dislikes}</span></div>
+                        <div class="reaction-btn" onclick="handleReaction('${g.id}', 'like')">👍 <span>${g.likes || 0}</span></div>
+                        <div class="reaction-btn" onclick="handleReaction('${g.id}', 'dislike')">👎 <span>${g.dislikes || 0}</span></div>
                         <div class="reaction-btn" onclick="openComments('${g.id}')">💬 <span>${g.comments ? g.comments.length : 0}</span></div>
                     </div>
                 `;
@@ -495,7 +484,7 @@
             const d = document.createElement('div');
             d.className = 'card';
             d.style.background = 'rgba(0,0,0,0.1)';
-            d.innerHTML = `<strong>${g.title}</strong> (${MODES_NAMES[g.mode]}) <button class="btn btn-danger" style="padding:4px 10px; font-size:11px; width:auto; float:right; margin:0;" onclick="deleteGame('${g.id}')">Удалить</button>`;
+            d.innerHTML = `<strong>${g.title}</strong> (${MODES_NAMES[g.mode] || "Игра"}) <button class="btn btn-danger" style="padding:4px 10px; font-size:11px; width:auto; float:right; margin:0;" onclick="deleteGame('${g.id}')">Удалить</button>`;
             list.appendChild(d);
         });
     }
@@ -571,7 +560,8 @@
             const b = document.createElement('button'); b.className = 'btn'; b.innerText = "Проверить ответ";
             b.onclick = () => {
                 const text = document.getElementById('mode-word-in').value.trim().toLowerCase();
-                const correct = qData.opts.find(o => o.isCorrect).text.toLowerCase();
+                const correctOpt = qData.opts.find(o => o.isCorrect);
+                const correct = correctOpt ? correctOpt.text.toLowerCase() : "";
                 checkEngine(text === correct);
             };
             ansBox.appendChild(b);
