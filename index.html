@@ -268,7 +268,7 @@
         btn.disabled = true;
         btn.innerText = "⏳ ИИ создает задания...";
 
-        const promptText = `Придумай 5 коротких учебных вопросов на тему "${topic}". Ответ верни СТРОГО в формате JSON без разметки markdown: {"questions": [{"q": "Вопрос?", "a": "Верный ответ", "n": "Неверный ответ"}]}`;
+        const promptText = `Придумай 10 коротких учебных вопросов на тему "${topic}". Ответ верни СТРОГО в формате JSON без разметки markdown: {"questions": [{"q": "Вопрос?", "a": "Верный ответ", "n": "Неверный ответ"}]}`;
 
         try {
             const response = await fetch(VERCEL_URL, {
