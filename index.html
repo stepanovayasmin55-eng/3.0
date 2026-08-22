@@ -22,10 +22,107 @@
       padding: 20px;
     }
 
-    h1 {
+    /* Шапка сайта */
+    header {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #334155;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
       color: #38bdf8;
+    }
+
+    .user-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #1e293b;
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid #334155;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      background: #8b5cf6;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    /* Окно авторизации */
+    .auth-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 24px;
+      width: 100%;
+      max-width: 400px;
       text-align: center;
+      margin-top: 40px;
+    }
+
+    .auth-card input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0 15px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      background: #0f172a;
+      color: #fff;
+      font-size: 16px;
+    }
+
+    .btn-main {
+      width: 100%;
+      background: #0284c7;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-main:hover {
+      background: #0369a1;
+    }
+
+    /* Генератор ИИ */
+    .ai-box {
+      width: 100%;
+      max-width: 800px;
+      background: #1e293b;
+      border: 1px dashed #38bdf8;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .ai-box input {
+      flex: 1;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      background: #0f172a;
+      color: #fff;
     }
 
     /* Навигация по режимам */
@@ -35,6 +132,8 @@
       flex-wrap: wrap;
       justify-content: center;
       margin-bottom: 25px;
+      width: 100%;
+      max-width: 800px;
     }
 
     .mode-btn {
@@ -52,10 +151,9 @@
       background: #0284c7;
       color: #fff;
       border-color: #38bdf8;
-      transform: translateY(-2px);
     }
 
-    /* Контейнер игры */
+    /* Карточки игр */
     .game-card {
       background: #1e293b;
       border: 1px solid #334155;
@@ -63,35 +161,32 @@
       width: 100%;
       max-width: 600px;
       padding: 24px;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
       display: none;
       flex-direction: column;
       align-items: center;
       position: relative;
-      overflow: hidden;
     }
 
     .game-card.active {
       display: flex;
     }
 
-    /* === 1. АВИАЦИЯ === */
+    /* 1. АВИАЦИЯ */
     .sky-container {
       width: 100%;
-      height: 250px;
+      height: 240px;
       background: linear-gradient(to bottom, #0284c7, #38bdf8);
       border-radius: 16px;
       position: relative;
       overflow: hidden;
+      margin-top: 15px;
     }
 
     .plane {
-      width: 50px;
-      height: 30px;
       position: absolute;
-      left: 30px;
-      top: 110px;
-      font-size: 28px;
+      left: 20px;
+      top: 100px;
+      font-size: 30px;
       transition: top 0.1s ease;
       z-index: 10;
     }
@@ -105,8 +200,7 @@
       font-weight: bold;
       font-size: 14px;
       white-space: nowrap;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      animation: flyCloud 6s linear infinite;
+      animation: flyCloud 7s linear infinite;
     }
 
     @keyframes flyCloud {
@@ -114,54 +208,35 @@
       to { left: -150px; }
     }
 
-    /* === 2. СЛУЧАЙНОЕ КОЛЕСО (WORDWALL) === */
+    /* 2. КОЛЕСО */
     .wheel-wrapper {
       position: relative;
-      width: 300px;
-      height: 300px;
+      width: 280px;
+      height: 280px;
       margin: 15px 0;
     }
 
     #wheelCanvas {
-      width: 300px;
-      height: 300px;
+      width: 280px;
+      height: 280px;
       border-radius: 50%;
-      box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
       transition: transform 4s cubic-bezier(0.15, 0.99, 0.18, 0.99);
     }
 
     .pointer {
       position: absolute;
-      top: -12px;
+      top: -10px;
       left: 50%;
       transform: translateX(-50%);
       width: 0;
       height: 0;
-      border-left: 15px solid transparent;
-      border-right: 15px solid transparent;
-      border-top: 25px solid #ef4444;
+      border-left: 12px solid transparent;
+      border-right: 12px solid transparent;
+      border-top: 22px solid #ef4444;
       z-index: 20;
     }
 
-    .spin-btn {
-      background: #22c55e;
-      color: white;
-      border: none;
-      padding: 12px 30px;
-      font-size: 18px;
-      font-weight: bold;
-      border-radius: 50px;
-      cursor: pointer;
-      margin-top: 15px;
-      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
-    }
-
-    .spin-btn:disabled {
-      background: #64748b;
-      cursor: not-allowed;
-    }
-
-    /* === 3. КРОТ === */
+    /* 3. КРОТ */
     .mole-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -171,13 +246,13 @@
     }
 
     .mole-hole {
-      height: 90px;
+      height: 80px;
       background: #334155;
       border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: bold;
       cursor: pointer;
       user-select: none;
@@ -188,7 +263,7 @@
       color: #0f172a;
     }
 
-    /* === 4. ВИКТОРИНА И МАСТЕР СЛОВ === */
+    /* 4 и 5. ВИКТОРИНА И МАСТЕР СЛОВ */
     .options-grid {
       display: flex;
       flex-direction: column;
@@ -203,7 +278,7 @@
       border: none;
       padding: 12px;
       border-radius: 10px;
-      font-size: 16px;
+      font-size: 15px;
       cursor: pointer;
       text-align: left;
     }
@@ -214,89 +289,138 @@
 
     .result-box {
       margin-top: 15px;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: bold;
       color: #38bdf8;
       text-align: center;
-      min-height: 27px;
+      min-height: 24px;
+    }
+
+    .hidden {
+      display: none !important;
     }
   </style>
 </head>
 <body>
 
-  <h1>GrammaLab — Игровые Режимы</h1>
+  <!-- Шапка -->
+  <header>
+    <div class="logo">GrammaLab</div>
+    <div class="user-badge id="userBadge">
+      <div class="user-avatar" id="avatarIcon">?</div>
+      <span id="userNameDisplay">Гость</span>
+    </div>
+  </header>
 
-  <!-- Переключатель режимов -->
-  <div class="modes-nav">
-    <button class="mode-btn active" onclick="switchMode('wheel')">🎡 Колесо</button>
-    <button class="mode-btn" onclick="switchMode('aviation')">✈️ Авиация</button>
-    <button class="mode-btn" onclick="switchMode('mole')">🐹 Крот</button>
-    <button class="mode-btn" onclick="switchMode('quiz')">❓ Викторина</button>
-    <button class="mode-btn" onclick="switchMode('master')">✍️ Мастер слов</button>
+  <!-- Экран Входа -->
+  <div class="auth-card" id="authBlock">
+    <h2>Добро пожаловать!</h2>
+    <p style="color: #94a3b8; font-size: 14px; margin-top: 5px;">Введите ваше имя для входа в игру</p>
+    <input type="text" id="userInput" placeholder="Например: Ясмин" />
+    <button class="btn-main" onclick="loginUser()">Войти в GrammaLab</button>
   </div>
 
-  <!-- 1. РЕЖИМ: КОЛЕСО ФОРТУНЫ -->
-  <div id="mode-wheel" class="game-card active">
-    <h2>Случайное колесо</h2>
-    <div class="wheel-wrapper">
-      <div class="pointer"></div>
-      <canvas id="wheelCanvas" width="300" height="300"></canvas>
+  <!-- Главный игровой интерфейс -->
+  <div id="mainGameApp" class="hidden" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+    
+    <!-- ИИ Генератор Заданий -->
+    <div class="ai-box">
+      <input type="text" id="aiTopicInput" placeholder="Введите тему (например: Чередующиеся гласные)" />
+      <button class="btn-main" style="width: auto; padding: 10px 16px;" onclick="generateAITests()">🤖 ИИ Создать</button>
     </div>
-    <button class="spin-btn" id="spinBtn" onclick="spinWheel()">КРУТИТЬ!</button>
-    <div class="result-box" id="wheelResult">Нажми "Крутить", чтобы получить задание</div>
-  </div>
 
-  <!-- 2. РЕЖИМ: АВИАЦИЯ -->
-  <div id="mode-aviation" class="game-card">
-    <h2>Авиация: Собери правильные слова</h2>
-    <p style="font-size: 14px; color: #94a3b8; margin-bottom: 10px;">Управляй самолётом клавишами Стрелка Вверх / Вниз</p>
-    <div class="sky-container" id="sky">
-      <div class="plane" id="plane">✈️</div>
-      <div class="cloud" style="top: 30px; animation-delay: 0s;">Ст..жи (а)</div>
-      <div class="cloud" style="top: 110px; animation-delay: 2s;">Ст..жи (о)</div>
-      <div class="cloud" style="top: 180px; animation-delay: 4s;">Ц..ган (ы)</div>
+    <!-- Переключатель режимов -->
+    <div class="modes-nav">
+      <button class="mode-btn active" onclick="switchMode('wheel')">🎡 Колесо</button>
+      <button class="mode-btn" onclick="switchMode('aviation')">✈️ Авиация</button>
+      <button class="mode-btn" onclick="switchMode('mole')">🐹 Крот</button>
+      <button class="mode-btn" onclick="switchMode('quiz')">❓ Викторина</button>
+      <button class="mode-btn" onclick="switchMode('master')">✍️ Мастер слов</button>
     </div>
-    <div class="result-box" id="aviationResult">Счет: 0</div>
-  </div>
 
-  <!-- 3. РЕЖИМ: КРОТ -->
-  <div id="mode-mole" class="game-card">
-    <h2>Поймай правильное слово</h2>
-    <div class="mole-grid">
-      <div class="mole-hole" onclick="checkMole(0)"></div>
-      <div class="mole-hole" onclick="checkMole(1)"></div>
-      <div class="mole-hole" onclick="checkMole(2)"></div>
-      <div class="mole-hole" onclick="checkMole(3)"></div>
-      <div class="mole-hole" onclick="checkMole(4)"></div>
-      <div class="mole-hole" onclick="checkMole(5)"></div>
+    <!-- 1. КОЛЕСО ФОРТУНЫ -->
+    <div id="mode-wheel" class="game-card active">
+      <h2>Случайное колесо</h2>
+      <div class="wheel-wrapper">
+        <div class="pointer"></div>
+        <canvas id="wheelCanvas" width="280" height="280"></canvas>
+      </div>
+      <button class="btn-main" id="spinBtn" onclick="spinWheel()">КРУТИТЬ!</button>
+      <div class="result-box" id="wheelResult">Нажми "Крутить", чтобы выбрать тему</div>
     </div>
-    <div class="result-box" id="moleResult">Очки: 0</div>
-  </div>
 
-  <!-- 4. РЕЖИМ: ВИКТОРИНА -->
-  <div id="mode-quiz" class="game-card">
-    <h2 id="quizQuestion">В каком слове пишется буква О?</h2>
-    <div class="options-grid" id="quizOptions">
-      <button class="opt-btn" onclick="answerQuiz(false)">Р..стение</button>
-      <button class="opt-btn" onclick="answerQuiz(true)">Рост..к</button>
-      <button class="opt-btn" onclick="answerQuiz(false)">Заг..рать</button>
+    <!-- 2. АВИАЦИЯ -->
+    <div id="mode-aviation" class="game-card">
+      <h2>Авиация</h2>
+      <p style="font-size: 13px; color: #94a3b8;">Управляй самолётом стрелками Вверх / Вниз</p>
+      <div class="sky-container">
+        <div class="plane" id="plane">✈️</div>
+        <div class="cloud" style="top: 20px; animation-delay: 0s;">Ст..жи (а)</div>
+        <div class="cloud" style="top: 90px; animation-delay: 2.5s;">Ц..ган (ы)</div>
+        <div class="cloud" style="top: 160px; animation-delay: 5s;">Рост..к (о)</div>
+      </div>
+      <div class="result-box" id="aviationResult">Счет: 0</div>
     </div>
-    <div class="result-box" id="quizResult"></div>
-  </div>
 
-  <!-- 5. РЕЖИМ: МАСТЕР СЛОВ -->
-  <div id="mode-master" class="game-card">
-    <h2>Мастер слов: Исправь ошибку</h2>
-    <p style="font-size: 20px; margin: 15px 0;" id="masterWord">Слово: <b>Шолохнуться</b></p>
-    <div class="options-grid">
-      <button class="opt-btn" onclick="checkMaster(true)">Написано верно</button>
-      <button class="opt-btn" onclick="checkMaster(false)">Есть ошибка (Шелохнуться)</button>
+    <!-- 3. КРОТ -->
+    <div id="mode-mole" class="game-card">
+      <h2>Поймай правильное слово</h2>
+      <div class="mole-grid">
+        <div class="mole-hole" onclick="checkMole(0)"></div>
+        <div class="mole-hole" onclick="checkMole(1)"></div>
+        <div class="mole-hole" onclick="checkMole(2)"></div>
+        <div class="mole-hole" onclick="checkMole(3)"></div>
+        <div class="mole-hole" onclick="checkMole(4)"></div>
+        <div class="mole-hole" onclick="checkMole(5)"></div>
+      </div>
+      <div class="result-box" id="moleResult">Очки: 0</div>
     </div>
-    <div class="result-box" id="masterResult"></div>
+
+    <!-- 4. ВИКТОРИНА -->
+    <div id="mode-quiz" class="game-card">
+      <h3 id="quizQuestion">В каком слове пишется буква О?</h3>
+      <div class="options-grid" id="quizOptions">
+        <button class="opt-btn" onclick="answerQuiz(false)">Р..стение</button>
+        <button class="opt-btn" onclick="answerQuiz(true)">Рост..к</button>
+        <button class="opt-btn" onclick="answerQuiz(false)">Заг..рать</button>
+      </div>
+      <div class="result-box" id="quizResult"></div>
+    </div>
+
+    <!-- 5. МАСТЕР СЛОВ -->
+    <div id="mode-master" class="game-card">
+      <h2>Мастер слов</h2>
+      <p style="font-size: 18px; margin: 15px 0;" id="masterWord">Слово: <b>Шолохнуться</b></p>
+      <div class="options-grid">
+        <button class="opt-btn" onclick="checkMaster(true)">Написано верно</button>
+        <button class="opt-btn" onclick="checkMaster(false)">Есть ошибка (Шелохнуться)</button>
+      </div>
+      <div class="result-box" id="masterResult"></div>
+    </div>
+
   </div>
 
   <script>
-    // === 1. ПЕРЕКЛЮЧЕНИЕ РЕЖИМОВ ===
+    // === 1. АВТОРИЗАЦИЯ И ПРОФИЛЬ ===
+    function checkAuth() {
+      const savedUser = localStorage.getItem('gramma_user');
+      if (savedUser) {
+        document.getElementById('authBlock').classList.add('hidden');
+        document.getElementById('mainGameApp').classList.remove('hidden');
+        document.getElementById('userNameDisplay').innerText = savedUser;
+        document.getElementById('avatarIcon').innerText = savedUser.charAt(0).toUpperCase();
+      }
+    }
+
+    function loginUser() {
+      const name = document.getElementById('userInput').value.trim();
+      if (name) {
+        localStorage.setItem('gramma_user', name);
+        checkAuth();
+      }
+    }
+
+    // === 2. ПЕРЕКЛЮЧЕНИЕ РЕЖИМОВ ===
     function switchMode(modeId) {
       document.querySelectorAll('.game-card').forEach(card => card.classList.remove('active'));
       document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
@@ -304,10 +428,44 @@
       document.getElementById(`mode-${modeId}`).classList.add('active');
       event.target.classList.add('active');
 
-      if(modeId === 'mole') startMoleGame();
+      if (modeId === 'mole') startMoleGame();
     }
 
-    // === 2. КОЛЕСО ФОРТУНЫ (WORDWALL STYLE) ===
+    // === 3. ИИ ГЕНЕРАЦИЯ ЧЕРЕЗ VERCEL ===
+    async function generateAITests() {
+      const topic = document.getElementById('aiTopicInput').value.trim() || 'Орфография';
+      alert(`Запрос отправлен ИИ по теме: ${topic}. Ожидайте генерации!`);
+
+      try {
+        const response = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: topic })
+        });
+        const data = await response.json();
+
+        if (Array.isArray(data) && data.length > 0) {
+          const first = data[0];
+          document.getElementById('quizQuestion').innerText = first.question;
+          const optionsContainer = document.getElementById('quizOptions');
+          optionsContainer.innerHTML = '';
+          
+          first.options.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'opt-btn';
+            btn.innerText = opt;
+            btn.onclick = () => answerQuiz(index === first.answer);
+            optionsContainer.appendChild(btn);
+          });
+          
+          alert('Вопросы от ИИ успешно загружены в режим Викторина!');
+        }
+      } catch (e) {
+        alert('Ошибка при генерации тестов через ИИ.');
+      }
+    }
+
+    // === 4. КОЛЕСО ФОРТУНЫ ===
     const sectors = [
       { label: 'Орфография', color: '#3b82f6' },
       { label: 'Пунктуация', color: '#10b981' },
@@ -330,17 +488,16 @@
         const angle = i * arc;
         ctx.beginPath();
         ctx.fillStyle = sec.color;
-        ctx.moveTo(150, 150);
-        ctx.arc(150, 150, 140, angle, angle + arc);
+        ctx.moveTo(140, 140);
+        ctx.arc(140, 140, 135, angle, angle + arc);
         ctx.fill();
 
-        // Текст сектора
         ctx.save();
-        ctx.translate(150, 150);
+        ctx.translate(140, 140);
         ctx.rotate(angle + arc / 2);
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 14px sans-serif';
-        ctx.fillText(sec.label, 45, 5);
+        ctx.font = 'bold 13px sans-serif';
+        ctx.fillText(sec.label, 40, 4);
         ctx.restore();
       });
     }
@@ -349,41 +506,35 @@
     function spinWheel() {
       if (isSpinning) return;
       isSpinning = true;
-      document.getElementById('spinBtn').disabled = true;
       document.getElementById('wheelResult').innerText = "Колесо крутится...";
 
       const extraDegrees = Math.floor(1440 + Math.random() * 360);
       currentDegree += extraDegrees;
-
       canvas.style.transform = `rotate(${currentDegree}deg)`;
 
       setTimeout(() => {
         isSpinning = false;
-        document.getElementById('spinBtn').disabled = false;
-
         const actualDegree = currentDegree % 360;
         const sectorAngle = 360 / sectors.length;
-        // Расчет выпавшего сектора под верхним указателем
         const winningIndex = Math.floor((360 - (actualDegree % 360) + 270) % 360 / sectorAngle);
-        
-        document.getElementById('wheelResult').innerText = `Выпала категория: ${sectors[winningIndex].label}!`;
+        document.getElementById('wheelResult').innerText = `Выпала тема: ${sectors[winningIndex].label}!`;
       }, 4000);
     }
 
-    // === 3. АВИАЦИЯ: УПРАВЛЕНИЕ САМОЛЕТОМ ===
-    let planeTop = 110;
+    // === 5. УПРАВЛЕНИЕ САМОЛЕТОМ ===
+    let planeTop = 100;
     const plane = document.getElementById('plane');
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowUp' && planeTop > 10) {
-        planeTop -= 25;
-      } else if (e.key === 'ArrowDown' && planeTop < 200) {
-        planeTop += 25;
+        planeTop -= 20;
+      } else if (e.key === 'ArrowDown' && planeTop < 190) {
+        planeTop += 20;
       }
       plane.style.top = planeTop + 'px';
     });
 
-    // === 4. РЕЖИМ: КРОТ ===
+    // === 6. КРОТ ===
     let moleScore = 0;
     let activeMoleIndex = -1;
     let moleInterval;
@@ -409,10 +560,10 @@
       }
     }
 
-    // === 5. РЕЖИМЫ: ВИКТОРИНА И МАСТЕР СЛОВ ===
+    // === 7. ВИКТОРИНА И МАСТЕР СЛОВ ===
     function answerQuiz(isCorrect) {
       const res = document.getElementById('quizResult');
-      res.innerText = isCorrect ? "Верно! 🎉" : "Неверно, попробуй ещё раз ❌";
+      res.innerText = isCorrect ? "Верно! 🎉" : "Неверно, попробуй ещё ❌";
       res.style.color = isCorrect ? "#22c55e" : "#ef4444";
     }
 
@@ -421,6 +572,9 @@
       res.innerText = !isCorrect ? "Отлично! Правильно: Шелохнуться 🎉" : "Ошибка! Пишется Шелохнуться ❌";
       res.style.color = !isCorrect ? "#22c55e" : "#ef4444";
     }
+
+    // Автопроверка входа при старте
+    checkAuth();
   </script>
 </body>
 </html>
